@@ -16,64 +16,64 @@ import {
   requestBody,
 } from '@loopback/rest';
 import {
-  Publisher,
+  Category,
   Book,
 } from '../models';
-import {PublisherRepository} from '../repositories';
+import {CategoryRepository} from '../repositories';
 
-export class PublisherBookController {
+export class CategoryBookController {
   constructor(
-    @repository(PublisherRepository) protected publisherRepository: PublisherRepository,
+    @repository(CategoryRepository) protected categoryRepository: CategoryRepository,
   ) { }
 
-  @get('/publishers/{id}/books', {
+  @get('/categories/{id}/book', {
     responses: {
       '200': {
-        description: 'Array of Publisher has many Book',
+        description: 'Category has one Book',
         content: {
           'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(Book)},
+            schema: getModelSchemaRef(Book),
           },
         },
       },
     },
   })
-  async find(
+  async get(
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Book>,
-  ): Promise<Book[]> {
-    return this.publisherRepository.books(id).find(filter);
+  ): Promise<Book> {
+    return this.categoryRepository.book(id).get(filter);
   }
 
-  @post('/publishers/{id}/books', {
+  @post('/categories/{id}/book', {
     responses: {
       '200': {
-        description: 'Publisher model instance',
+        description: 'Category model instance',
         content: {'application/json': {schema: getModelSchemaRef(Book)}},
       },
     },
   })
   async create(
-    @param.path.string('id') id: typeof Publisher.prototype.id,
+    @param.path.string('id') id: typeof Category.prototype._id,
     @requestBody({
       content: {
         'application/json': {
           schema: getModelSchemaRef(Book, {
-            title: 'NewBookInPublisher',
-            exclude: ['id'],
-            optional: ['publisher_id']
+            title: 'NewBookInCategory',
+            exclude: ['_id'],
+            optional: ['categoryId']
           }),
         },
       },
-    }) book: Omit<Book, 'id'>,
+    }) book: Omit<Book, '_id'>,
   ): Promise<Book> {
-    return this.publisherRepository.books(id).create(book);
+    return this.categoryRepository.book(id).create(book);
   }
 
-  @patch('/publishers/{id}/books', {
+  @patch('/categories/{id}/book', {
     responses: {
       '200': {
-        description: 'Publisher.Book PATCH success count',
+        description: 'Category.Book PATCH success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
@@ -90,13 +90,13 @@ export class PublisherBookController {
     book: Partial<Book>,
     @param.query.object('where', getWhereSchemaFor(Book)) where?: Where<Book>,
   ): Promise<Count> {
-    return this.publisherRepository.books(id).patch(book, where);
+    return this.categoryRepository.book(id).patch(book, where);
   }
 
-  @del('/publishers/{id}/books', {
+  @del('/categories/{id}/book', {
     responses: {
       '200': {
-        description: 'Publisher.Book DELETE success count',
+        description: 'Category.Book DELETE success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
@@ -105,6 +105,6 @@ export class PublisherBookController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Book)) where?: Where<Book>,
   ): Promise<Count> {
-    return this.publisherRepository.books(id).delete(where);
+    return this.categoryRepository.book(id).delete(where);
   }
 }

@@ -1,7 +1,8 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, hasOne} from '@loopback/repository';
+import {Book} from './book.model';
 
 @model()
-export class Author extends Entity {
+export class Category extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -19,7 +20,7 @@ export class Author extends Entity {
     type: 'string',
     required: true,
   })
-  author_image: string;
+  category_image: string;
 
   @property({
     type: 'string',
@@ -51,7 +52,7 @@ export class Author extends Entity {
     type: 'boolean',
     default: false,
   })
-  isDelted?: boolean;
+  isdeleted?: boolean;
 
   @property({
     type: 'date',
@@ -63,14 +64,16 @@ export class Author extends Entity {
   })
   deleted_by?: string;
 
+  @hasOne(() => Book)
+  book: Book;
 
-  constructor(data?: Partial<Author>) {
+  constructor(data?: Partial<Category>) {
     super(data);
   }
 }
 
-export interface AuthorRelations {
+export interface CategoryRelations {
   // describe navigational properties here
 }
 
-export type AuthorWithRelations = Author & AuthorRelations;
+export type CategoryWithRelations = Category & CategoryRelations;

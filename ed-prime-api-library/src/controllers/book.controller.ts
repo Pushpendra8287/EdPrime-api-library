@@ -37,12 +37,12 @@ export class BookController {
         'application/json': {
           schema: getModelSchemaRef(Book, {
             title: 'NewBook',
-            
+            exclude: ['_id'],
           }),
         },
       },
     })
-    book: Book,
+    book: Omit<Book, '_id'>,
   ): Promise<Book> {
     return this.bookRepository.create(book);
   }

@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, referencesMany} from '@loopback/repository';
+import {Author} from './author.model';
 
 @model()
 export class Book extends Entity {
@@ -7,59 +8,50 @@ export class Book extends Entity {
     id: true,
     generated: true,
   })
-  id?: string;
+  _id?: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  book_title: string;
+  title: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  category_id: string;
+  categoryId: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  publisher_id: string;
+  publisherId: string;
+  @property({
+    type: 'array',
+    itemType: 'string',
+    required: true,
+  })
+  genreId: string[];
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  languageId: string;
+
+  @property({
+    type: 'array',
+    itemType: 'string',
+  })
+  ClasessId: string[];
 
   @property({
     type: 'array',
     itemType: 'string',
     required: true,
   })
-  author_id: string[];
-
-  @property({
-    type: 'array',
-    itemType: 'string',
-    required: true,
-  })
-  genre_id: string[];
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  language_id: string;
-
-  @property({
-    type: 'array',
-    itemType: 'string',
-    required: true,
-  })
-  class_id: string[];
-
-  @property({
-    type: 'array',
-    itemType: 'string',
-    required: true,
-  })
-  subject_id: string[];
+  subjectId: string[];
 
   @property({
     type: 'string',
@@ -69,27 +61,40 @@ export class Book extends Entity {
 
   @property({
     type: 'string',
-    required: true,
   })
-  book_Images: string;
+  BookImages?: string;
+
+  @property({
+    type: 'string',
+    default: true,
+  })
+  status?: string;
+
+  @property({
+    type: 'date',
+  })
+  created_on?: string;
+
+  @property({
+    type: 'string',
+  })
+  created_by?: string;
+
+  @property({
+    type: 'date',
+  })
+  modified_on?: string;
+
+  @property({
+    type: 'string',
+  })
+  modified_by?: string;
 
   @property({
     type: 'boolean',
-    default: true,
+    default: false,
   })
-  status?: boolean;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  created_by: string;
-
-  @property({
-    type: 'string',
-    
-  })
-  modified_by?: string;
+  isDeleted?: boolean;
 
   @property({
     type: 'date',
@@ -101,6 +106,8 @@ export class Book extends Entity {
   })
   deleted_by?: string;
 
+  @referencesMany(() => Author, {name: 'Bookauthor'})
+  authorId: string[];
 
   constructor(data?: Partial<Book>) {
     super(data);

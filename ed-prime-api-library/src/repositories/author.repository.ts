@@ -5,17 +5,12 @@ import {Author, AuthorRelations} from '../models';
 
 export class AuthorRepository extends DefaultCrudRepository<
   Author,
-  typeof Author.prototype.id,
+  typeof Author.prototype._id,
   AuthorRelations
 > {
   constructor(
     @inject('datasources.Library') dataSource: LibraryDataSource,
   ) {
     super(Author, dataSource);
-    (this.modelClass as any).observe('persist', async (ctx: any) => {
-
-      ctx.data.modified = new Date();
-
-    });
   }
 }
