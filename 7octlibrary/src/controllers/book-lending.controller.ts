@@ -26,8 +26,8 @@ export class BookLendingController {
   fine_charge: number;
   received_by: string;
   userRole: any;
-  numsAllowBookStudent: any;
-  maxCheckOutBookStudent: any
+  // numsAllowBookStudent: any;
+  // maxCheckOutBookStudent: any
 
   constructor(
     @repository(BookLendingRepository)
@@ -61,30 +61,28 @@ export class BookLendingController {
   ): Promise<BookLending> {
     // UserType check
     let data = await this.studentRepository.findById(bookLending.usertype);
-    console.log(data.user_role)
     this.userRole = data.user_role
+    let allReadyIssueBook = await this.bookLendingRepository.find({
+      where: {
+        and: [
+          {
+            usertype: bookLending.usertype,
+            // isSubmitted: false,
+            return_date: undefined   // use in case
+          }
+        ]
+      }
+    })
+    console.log(allReadyIssueBook,"dfrejyfqewt")
+    let allReadyIsuseQty = allReadyIssueBook.length
+    console.log(allReadyIsuseQty,"Qty")
     // for Student
     if (this.userRole == "student") {
-      // all ready issue book qty check
-      let allReadyIssueBook = await this.bookLendingRepository.find({
-        where: {
-          and: [
-            {
-              usertype: bookLending.usertype,
-              isSubmitted: false
-            }
-          ]
-        }
-      })
-      // length count
-      let allReadyIsuseQty = allReadyIssueBook.length
-      console.log(allReadyIsuseQty,"Qty")
       let studentSetting = await this.studentSettingRepository.findOne()
-      this.maxCheckOutBookStudent = studentSetting?.cb_max_checkout_type1;
-      this.numsAllowBookStudent = studentSetting?.cb_max_borrow_allow_days1;
-      if (this.maxCheckOutBookStudent > allReadyIsuseQty) {
-        // let date1 = Math.round(( Date.now() + this.numsAllowBookStudent * 24 * 60 * 60 * 1000))
-        bookLending.due_date = new Date( Date.now() + this.numsAllowBookStudent * 24 * 60 * 60 * 1000)
+      let maxCheckOutBookStudent = studentSetting?.cb_max_checkout_type1;
+      let numsAllowBookStudent = studentSetting?.cb_max_borrow_allow_days1;
+      if (maxCheckOutBookStudent! > allReadyIsuseQty) {
+        bookLending.due_date = new Date( Date.now() + numsAllowBookStudent! * 24 * 60 * 60 * 1000)
       }
       else{
         throw new HttpErrors.BadRequest("Allready max Book issues")
@@ -92,21 +90,15 @@ export class BookLendingController {
     }
     //for teacher
     else if (this.userRole == "teacher") {
-      let allReadyIssueBook = await this.bookLendingRepository.find({
-        where: {
-          and: [
-            {
-              usertype: bookLending.usertype,
-              isSubmitted: false
-            }
-          ]
-        }
-      })
-      let teacherMaxCheckoutBook = await this.teacherSettingRepository.findOne()
-      let returnDateTeacher = teacherMaxCheckoutBook?.cb_max_borrow_allow_days1;
-      let numAllowTeacher = teacherMaxCheckoutBook?.cb_max_borrow_allow_days1;
-
-
+      let teacherSetting = await this.teacherSettingRepository.findOne()
+      let returnDateTeacher = teacherSetting?.cb_max_checkout_type1;
+      let numAllowTeacher = teacherSetting?.cb_max_borrow_allow_days1;
+      if (returnDateTeacher! > allReadyIsuseQty) {
+        bookLending.due_date = new Date( Date.now() + numAllowTeacher! * 24 * 60 * 60 * 1000)
+      }
+      else{
+        throw new HttpErrors.BadRequest("Allready max Book issues")
+      }
     }
     return this.bookLendingRepository.create(bookLending);
   }

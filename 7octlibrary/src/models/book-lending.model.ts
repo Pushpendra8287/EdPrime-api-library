@@ -21,7 +21,7 @@ export class BookLending extends Entity {
     type: 'boolean',
     default: false
   })
-  isSubmitted?: boolean;
+  isSubmitted: boolean;
 
   @property({
     type: 'boolean',
